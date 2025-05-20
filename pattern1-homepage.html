@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吉川屋 - 料理ページ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Serif JP', serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #faf7f2;
+    }
+    
+    header {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 700;
+      font-size: 24px;
+      color: #3a2a1a;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+    
+    nav ul li {
+      margin-left: 30px;
+    }
+    
+    nav ul li a {
+      text-decoration: none;
+      color: #3a2a1a;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    nav ul li a:hover {
+      color: #9a8478;
+    }
+    
+    .reserve-btn {
+      background-color: #9a8478;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 4px;
+    }
+    
+    .hero {
+      height: 100vh;
+      background-image: url('/api/placeholder/1600/900');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-top: 60px;
+    }
+    
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    
+    .hero-content {
+      text-align: center;
+      color: white;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-content h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+    }
+    
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      color: white;
+      font-size: 14px;
+      letter-spacing: 0.2em;
+    }
+    
+    .scroll-indicator::after {
+      content: "↓";
+      display: block;
+      font-size: 20px;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-20px);
+      }
+      60% {
+        transform: translateY(-10px);
+      }
+    }
+    
+    .category-section {
+      padding: 80px 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+    
+    .category-card {
+      width: 22%;
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+    
+    .category-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-img {
+      height: 200px;
+      overflow: hidden;
+    }
+    
+    .category-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.5s ease;
+    }
+    
+    .category-card:hover .category-img img {
+      transform: scale(1.1);
+    }
+    
+    .category-content {
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .category-content h3 {
+      margin-bottom: 10px;
+      font-size: 18px;
+      color: #3a2a1a;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 8px 15px;
+      border: 1px solid #9a8478;
+      color: #9a8478;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    
+    .btn:hover {
+      background-color: #9a8478;
+      color: white;
+    }
+    
+    .latest-section {
+      padding: 80px 0;
+      background-color: white;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    
+    .section-header h2 {
+      font-size: 28px;
+      color: #3a2a1a;
+      font-weight: 300;
+      margin-bottom: 15px;
+      letter-spacing: 0.1em;
+    }
+    
+    .section-header::after {
+      content: "";
+      display: block;
+      width: 50px;
+      height: 1px;
+      background-color: #9a8478;
+      margin: 0 auto;
+    }
+    
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .gallery-item {
+      width: calc(25% - 20px);
+      margin: 10px;
+      height: 250px;
+      overflow: hidden;
+      border-radius: 5px;
+      position: relative;
+    }
+    
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.3s ease;
+    }
+    
+    .gallery-item:hover img {
+      transform: scale(1.05);
+    }
+    
+    .gallery-item::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.7) 100%);
+    }
+    
+    .gallery-item-caption {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      color: white;
+      z-index: 1;
+      font-size: 16px;
+    }
+    
+    .testimonial-section {
+      padding: 80px 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .testimonial {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+    
+    .testimonial-content {
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+    
+    .testimonial-author {
+      text-align: right;
+      font-weight: bold;
+    }
+    
+    footer {
+      background-color: #3a2a1a;
+      color: white;
+      padding: 50px 0;
+      text-align: center;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .footer-links a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    
+    .footer-info {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 1024px) {
+      .category-card {
+        width: 45%;
+      }
+      
+      .gallery-item {
+        width: calc(33.333% - 20px);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .hero-content h1 {
+        font-size: 32px;
+      }
+      
+      nav ul li {
+        margin-left: 15px;
+      }
+      
+      .gallery-item {
+        width: calc(50% - 20px);
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .category-card {
+        width: 90%;
+      }
+      
+      .gallery-item {
+        width: calc(100% - 20px);
+      }
+      
+      .hero-content h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">匠のこころ 吉川屋</div>
+    <nav>
+      <ul>
+        <li><a href="#">温泉</a></li>
+        <li><a href="#">お部屋</a></li>
+        <li><a href="#" class="active">料理</a></li>
+        <li><a href="#">周辺案内</a></li>
+        <li><a href="#" class="reserve-btn">ご予約</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>地域の宝を表現する。<br>心と体に優しい食の物語</h1>
+    </div>
+    <div class="scroll-indicator">SCROLL</div>
+  </section>
+
+  <section class="category-section">
+    <div class="category-card">
+      <div class="category-img">
+        <img src="/api/placeholder/400/300" alt="大友料理長の物語">
+      </div>
+      <div class="category-content">
+        <h3>大友料理長の物語</h3>
+        <p>15歳から56歳までの料理人としての旅と「お客様の笑顔のために」という想い</p>
+        <a href="#" class="btn">詳しく見る</a>
+      </div>
+    </div>
+    
+    <div class="category-card">
+      <div class="category-img">
+        <img src="/api/placeholder/400/300" alt="四季の懐石">
+      </div>
+      <div class="category-content">
+        <h3>四季の懐石</h3>
+        <p>季節の移ろいを表現した懐石料理。前菜から甘味まで、五感で味わう至福の時間</p>
+        <a href="#" class="btn">詳しく見る</a>
+      </div>
+    </div>
+    
+    <div class="category-card">
+      <div class="category-img">
+        <img src="/api/placeholder/400/300" alt="発酵の神秘">
+      </div>
+      <div class="category-content">
+        <h3>発酵の神秘</h3>
+        <p>古来より伝わる発酵の技と知恵。現代に蘇る、体に優しいヘルシーな味わい</p>
+        <a href="#" class="btn">詳しく見る</a>
+      </div>
+    </div>
+    
+    <div class="category-card">
+      <div class="category-img">
+        <img src="/api/placeholder/400/300" alt="福島の至宝">
+      </div>
+      <div class="category-content">
+        <h3>福島の至宝</h3>
+        <p>福島牛、常磐もの、地元フルーツなど、誇り高き福島の食材たち</p>
+        <a href="#" class="btn">詳しく見る</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="latest-section">
+    <div class="section-header">
+      <h2>最新の料理日記</h2>
+    </div>
+    <div class="gallery">
+      <div class="gallery-item">
+        <img src="/api/placeholder/400/300" alt="季節の料理">
+        <div class="gallery-item-caption">春の山菜と福島牛の小鍋仕立て</div>
+      </div>
+      <div class="gallery-item">
+        <img src="/api/placeholder/400/300" alt="季節の料理">
+        <div class="gallery-item-caption">自家製糠漬けのムース仕立て</div>
+      </div>
+      <div class="gallery-item">
+        <img src="/api/placeholder/400/300" alt="季節の料理">
+        <div class="gallery-item-caption">甘酒と福島桃のデザート</div>
+      </div>
+      <div class="gallery-item">
+        <img src="/api/placeholder/400/300" alt="季節の料理">
+        <div class="gallery-item-caption">朝食の風景 - 発酵フレンチトースト</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonial-section">
+    <div class="section-header">
+      <h2>お客様の声</h2>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-content">
+        「料理長の『地域の宝を表現する』という言葉に感銘を受けました。福島の食材の素晴らしさを改めて知る機会となり、特に発酵食品を活かした料理の数々は体にも優しく、とても美味しかったです。」
+      </div>
+      <div class="testimonial-author">東京都 K.S様</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-content">
+        「朝食の甘酒フレンチトーストが忘れられません。スタッフの方が丁寧に食材の説明をしてくださり、料理への思いが伝わってきました。次回は福島万年ロマン懐石を体験してみたいです。」
+      </div>
+      <div class="testimonial-author">大阪府 T.M様</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-links">
+      <a href="#">温泉</a>
+      <a href="#">お部屋</a>
+      <a href="#">料理</a>
+      <a href="#">周辺案内</a>
+      <a href="#">アクセス</a>
+      <a href="#">お問い合わせ</a>
+    </div>
+    <div class="footer-info">
+      <p>匠のこころ 吉川屋</p>
+      <p>〒960-0201 福島県福島市飯坂町湯野字新湯6</p>
+      <p>TEL: 024-542-2431</p>
+    </div>
+  </footer>
+</body>
+</html>

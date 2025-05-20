@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吉川屋 - 夏の懐石 (パターン2: ビジュアル体験型)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #fff;
+    }
+    
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .logo {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: #222;
+    }
+    
+    .menu-toggle {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #333;
+      cursor: pointer;
+    }
+    
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .menu-overlay.show {
+      display: flex;
+    }
+    
+    .menu-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    .menu-links {
+      text-align: center;
+    }
+    
+    .menu-link {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+      text-decoration: none;
+    }
+    
+    .parallax-header {
+      height: 80vh;
+      background-image: url('/api/placeholder/1600/1200');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      align-items: flex-end;
+      position: relative;
+    }
+    
+    .parallax-header::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 2;
+      padding: 60px 30px;
+      color: white;
+      width: 100%;
+    }
+    
+    .header-subtitle {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: 300;
+    }
+    
+    .header-title {
+      font-size: 42px;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+    
+    .content-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+    
+    .horizontal-gallery {
+      margin: 60px 0;
+      overflow: hidden;
+    }
+    
+    .gallery-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 15px;
+      padding: 20px 0;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    .gallery-container::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .gallery-item {
+      flex: 0 0 auto;
+      width: 80%;
+      max-width: 600px;
+      height: 400px;
+      scroll-snap-align: center;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    .gallery-item:hover img {
+      transform: scale(1.03);
+    }
+    
+    .gallery-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      color: white;
+    }
+    
+    .gallery-caption h3 {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+    
+    .gallery-nav {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 15px;
+    }
+    
+    .gallery-nav-btn {
+      background-color: #f1f1f1;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .gallery-nav-btn:hover {
+      background-color: #ddd;
+    }
+    
+    .section-title {
+      font-size: 28px;
+      font-weight: 300;
+      margin-bottom: 40px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .section-title::after {
+      content: "";
+      display: block;
+      width: 30px;
+      height: 2px;
+      background-color: #333;
+      margin: 15px auto 0;
+    }
+    
+    .ingredients-map {
+      height: 500px;
+      background-color: #f5f5f5;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      margin: 60px 0;
+    }
+    
+    .map-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .map-marker {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background-color: rgba(255, 93, 93, 0.9);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s;
+    }
+    
+    .map-marker:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    
+    .map-tooltip {
+      position: absolute;
+      background-color: white;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      min-width: 200px;
+      max-width: 300px;
+      z-index: 10;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    
+    .map-tooltip.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .map-tooltip h4 {
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+    
+    .map-tooltip p {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .course-timeline {
+      margin: 60px 0;
+    }
+    
+    .timeline-container {
+      display: flex;
+      align-items: stretch;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 10px;
+      padding: 20px 0;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    .timeline-container::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .timeline-item {
+      flex: 0 0 auto;
+      width: 250px;
+      scroll-snap-align: start;
+      position: relative;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+    
+    .timeline-item::before {
+      content: "";
+      width: 20px;
+      height: 20px;
+      background-color: #65b2ff;
+      border-radius: 50%;
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .timeline-item::after {
+      content: "";
+      height: 2px;
+      background-color: #65b2ff;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+    
+    .timeline-item h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .timeline-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    
+    .timeline-item p {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .social-share {
+      text-align: center;
+      margin: 60px 0;
+    }
+    
+    .social-share h3 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .share-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .share-button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      text-decoration: none;
+      transition: transform 0.3s;
+    }
+    
+    .share-button:hover {
+      transform: translateY(-5px);
+    }
+    
+    .share-twitter {
+      background-color: #1DA1F2;
+    }
+    
+    .share-facebook {
+      background-color: #4267B2;
+    }
+    
+    .share-instagram {
+      background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+    }
+    
+    .share-line {
+      background-color: #00B900;
+    }
+    
+    .hashtag-suggestions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .hashtag {
+      padding: 5px 15px;
+      background-color: #f1f1f1;
+      border-radius: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    @media (max-width: 768px) {
+      .header-title {
+        font-size: 32px;
+      }
+      
+      .gallery-item {
+        width: 90%;
+      }
+      
+      .timeline-item {
+        width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">匠のこころ 吉川屋</div>
+    <button class="menu-toggle" id="menu-toggle">≡</button>
+  </header>
+
+  <div class="menu-overlay" id="menu-overlay">
+    <button class="menu-close" id="menu-close">×</button>
+    <div class="menu-links">
+      <a href="#" class="menu-link">ホーム</a>
+      <a href="#" class="menu-link">温泉</a>
+      <a href="#" class="menu-link">お部屋</a>
+      <a href="#" class="menu-link">料理</a>
+      <a href="#" class="menu-link">周辺案内</a>
+      <a href="#" class="menu-link">アクセス</a>
+      <a href="#" class="menu-link">ご予約</a>
+    </div>
+  </div>
+
+  <section class="parallax-header">
+    <div class="header-content">
+      <p class="header-subtitle">四季の懐石</p>
+      <h1 class="header-title">夏の懐石<br>旬の恵みと涼を感じる</h1>
+    </div>
+  </section>
+
+  <div class="content-container">
+    <section class="horizontal-gallery">
+      <h2 class="section-title">夏の料理</h2>
+      <div class="gallery-container" id="gallery-container">
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="鮎の塩焼き">
+          <div class="gallery-caption">
+            <h3>鮎の塩焼き</h3>
+            <p>福島の清流で育った香り高い鮎を炭火で丁寧に焼き上げました。</p>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="冷やし茄子の揚げ浸し">
+          <div class="gallery-caption">
+            <h3>冷やし茄子の揚げ浸し</h3>
+            <p>地元で採れた茄子を香ばしく揚げ、特製の出汁に浸して。夏の涼を感じる一品。</p>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="冷製トマトの白和え">
+          <div class="gallery-caption">
+            <h3>冷製トマトの白和え</h3>
+            <p>福島産の完熟トマトと自家製の豆腐で作った白和え。発酵調味料のアクセントが効いています。</p>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="岩魚の刺身">
+          <div class="gallery-caption">
+            <h3>岩魚の刺身</h3>
+            <p>阿武隈川の清流で育った岩魚を、特製の醤油と共に。</p>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="スイカの冷製スープ">
+          <div class="gallery-caption">
+            <h3>スイカの冷製スープ</h3>
+            <p>福島県産スイカを使った清涼感あふれる冷製スープ。甘みと香りをお楽しみください。</p>
+          </div>
+        </div>
+      </div>
+      <div class="gallery-nav">
+        <button class="gallery-nav-btn prev" id="gallery-prev">❮</button>
+        <button class="gallery-nav-btn next" id="gallery-next">❯</button>
+      </div>
+    </section>
+
+    <section class="ingredients-map">
+      <img src="/api/placeholder/1200/500" alt="福島県の食材マップ" class="map-img">
+      
+      <!-- マップ上のマーカー -->
+      <div class="map-marker" style="top: 30%; left: 40%;" data-id="marker1">1</div>
+      <div class="map-marker" style="top: 45%; left: 65%;" data-id="marker2">2</div>
+      <div class="map-marker" style="top: 60%; left: 35%;" data-id="marker3">3</div>
+      <div class="map-marker" style="top: 25%; left: 70%;" data-id="marker4">4</div>
+      <div class="map-marker" style="top: 50%; left: 20%;" data-id="marker5">5</div>
+      
+      <!-- ツールチップ -->
+      <div class="map-tooltip" id="tooltip-marker1">
+        <h4>阿武隈川の鮎</h4>
+        <p>清らかな阿武隈川で育った夏の味覚。香りが強く、身が引き締まっています。</p>
+      </div>
+      <div class="map-tooltip" id="tooltip-marker2">
+        <h4>福島市の夏野菜</h4>
+        <p>地元農家から直接仕入れる新鮮な茄子やトマト。太陽の恵みをたっぷり受けた夏の宝です。</p>
+      </div>
+      <div class="map-tooltip" id="tooltip-marker3">
+        <h4>会津地方のスイカ</h4>
+        <p>甘みが強く、シャリッとした食感が特徴。夏の涼を感じる福島の名産品です。</p>
+      </div>
+      <div class="map-tooltip" id="tooltip-marker4">
+        <h4>浜通りの海の幸</h4>
+        <p>太平洋からの新鮮な海の幸。夏は特に脂がのった魚介類をお楽しみいただけます。</p>
+      </div>
+      <div class="map-tooltip" id="tooltip-marker5">
+        <h4>地元の発酵食品</h4>
+        <p>福島に伝わる伝統的な発酵技術で作られた調味料。料理に深みと複雑さを与えます。</p>
+      </div>
+    </section>
+
+    <section class="course-timeline">
+      <h2 class="section-title">料理の流れ</h2>
+      <div class="timeline-container">
+        <div class="timeline-item">
+          <h3>前菜</h3>
+          <img src="/api/placeholder/200/150" alt="夏の前菜">
+          <p>季節の食材を小さな宝石箱のように盛り付けた五種の前菜。夏の涼やかさを表現しています。</p>
+        </div>
+        <div class="timeline-item">
+          <h3>椀物</h3>
+          <img src="/api/placeholder/200/150" alt="清汁">
+          <p>岩魚と夏野菜の清汁。シンプルながらも旨味と香りが広がる一品です。</p>
+        </div>
+        <div class="timeline-item">
+          <h3>造り</h3>
+          <img src="/api/placeholder/200/150" alt="夏の刺身盛り合わせ">
+          <p>旬の魚介を厳選した刺身の盛り合わせ。自家製の醤油と共にお楽しみください。</p>
+        </div>
+        <div class="timeline-item">
+          <h3>焼物</h3>
+          <img src="/api/placeholder/200/150" alt="鮎の塩焼き">
+          <p>阿武隈川の鮎を炭火で香ばしく焼き上げました。骨まで美味しくお召し上がりいただけます。</p>
+        </div>
+        <div class="timeline-item">
+          <h3>強肴</h3>
+          <img src="/api/placeholder/200/150" alt="福島牛の陶板焼き">
+          <p>福島牛と夏野菜の陶板焼き。地元の味噌を使ったソースでお召し上がりください。</p>
+        </div>
+        <div class="timeline-item">
+          <h3>食事</h3>
+          <img src="/api/placeholder/200/150" alt="冷やし茶漬け">
+          <p>夏の旬な具材を使った冷やし茶漬け。つるりと喉越しの良い一品で締めくくります。</p>
+        </div>
+        <div class="timeline-item">
+          <h3>甘味</h3>
+          <img src="/api/placeholder/200/150" alt="スイカのデザート">
+          <p>福島県産スイカと甘酒のジュレ。甘さと爽やかさのバランスが絶妙なデザートです。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="social-share">
+      <h3>体験を共有する</h3>
+      <div class="share-buttons">
+        <a href="#" class="share-button share-twitter">T</a>
+        <a href="#" class="share-button share-facebook">f</a>
+        <a href="#" class="share-button share-instagram">In</a>
+        <a href="#" class="share-button share-line">L</a>
+      </div>
+      <div class="hashtag-suggestions">
+        <span class="hashtag">#吉川屋</span>
+        <span class="hashtag">#夏の懐石</span>
+        <span class="hashtag">#福島グルメ</span>
+        <span class="hashtag">#発酵の神秘</span>
+        <span class="hashtag">#旬の料理</span>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // メニュー開閉処理
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuClose = document.getElementById('menu-close');
+    const menuOverlay = document.getElementById('menu-overlay');
+    
+    menuToggle.addEventListener('click', function() {
+      menuOverlay.classList.add('show');
+    });
+    
+    menuClose.addEventListener('click', function() {
+      menuOverlay.classList.remove('show');
+    });
+    
+    // ギャラリーナビゲーション
+    const galleryContainer = document.getElementById('gallery-container');
+    const galleryPrev = document.getElementById('gallery-prev');
+    const galleryNext = document.getElementById('gallery-next');
+    
+    galleryPrev.addEventListener('click', function() {
+      galleryContainer.scrollBy({ left: -300, behavior: 'smooth' });
+    });
+    
+    galleryNext.addEventListener('click', function() {
+      galleryContainer.scrollBy({ left: 300, behavior: 'smooth' });
+    });
+    
+    // マップマーカー処理
+    const mapMarkers = document.querySelectorAll('.map-marker');
+    
+    mapMarkers.forEach(marker => {
+      marker.addEventListener('mouseenter', function() {
+        const tooltipId = 'tooltip-' + this.getAttribute('data-id');
+        const tooltip = document.getElementById(tooltipId);
+        
+        // ツールチップの位置を設定
+        const markerRect = this.getBoundingClientRect();
+        const mapRect = document.querySelector('.ingredients-map').getBoundingClientRect();
+        
+        tooltip.style.top = (markerRect.top - mapRect.top + 40) + 'px';
+        tooltip.style.left = (markerRect.left - mapRect.left) + 'px';
+        
+        // ツールチップを表示
+        tooltip.classList.add('show');
+      });
+      
+      marker.addEventListener('mouseleave', function() {
+        const tooltipId = 'tooltip-' + this.getAttribute('data-id');
+        const tooltip = document.getElementById(tooltipId);
+        
+        // ツールチップを非表示
+        tooltip.classList.remove('show');
+      });
+    });
+    
+    // パララックス効果
+    window.addEventListener('scroll', function() {
+      const parallaxHeader = document.querySelector('.parallax-header');
+      if (parallaxHeader) {
+        const scrollPosition = window.pageYOffset;
+        parallaxHeader.style.backgroundPositionY = (scrollPosition * 0.5) + 'px';
+      }
+    });
+  </script>
+</body>
+</html>

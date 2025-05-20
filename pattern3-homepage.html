@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吉川屋 - 料理ページ (パターン3: インタラクティブストーリーテリング)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #f8f5f2;
+    }
+    
+    header {
+      background-color: white;
+      padding: 15px 30px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: #3a2a1a;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+    
+    nav ul li {
+      margin-left: 30px;
+    }
+    
+    nav ul li a {
+      text-decoration: none;
+      color: #3a2a1a;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    nav ul li a:hover {
+      color: #9a8478;
+    }
+    
+    .reserve-btn {
+      background-color: #9a8478;
+      color: white !important;
+      padding: 8px 20px;
+      border-radius: 4px;
+    }
+    
+    .main-container {
+      padding-top: 80px;
+      min-height: 100vh;
+    }
+    
+    .interest-section {
+      padding: 60px 30px;
+      text-align: center;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    .section-title {
+      font-size: 28px;
+      color: #3a2a1a;
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+    
+    .interest-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .interest-button {
+      padding: 15px 30px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .interest-button:hover,
+    .interest-button.active {
+      background-color: #9a8478;
+      color: white;
+      border-color: #9a8478;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .story-map-section {
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto 60px;
+    }
+    
+    .story-map-container {
+      position: relative;
+      height: 600px;
+      background-color: #fbf8f5;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+    
+    .story-map {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('/api/placeholder/1200/600');
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .map-nodes {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .map-node {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    
+    .map-node:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .map-node-icon {
+      font-size: 30px;
+      color: #9a8478;
+    }
+    
+    .map-node-content {
+      position: absolute;
+      width: 300px;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 20;
+    }
+    
+    .map-node-content.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .map-node-content h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #3a2a1a;
+    }
+    
+    .map-node-content p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+    
+    .map-node-link {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #9a8478;
+      color: white;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 13px;
+      transition: background-color 0.3s;
+    }
+    
+    .map-node-link:hover {
+      background-color: #8a7468;
+    }
+    
+    .map-connector {
+      position: absolute;
+      background-color: rgba(154, 132, 120, 0.3);
+      z-index: 5;
+    }
+    
+    /* ノードの位置 */
+    #node-philosophy {
+      top: 20%;
+      left: 25%;
+    }
+    
+    #node-fermentation {
+      top: 20%;
+      left: 50%;
+    }
+    
+    #node-local-food {
+      top: 20%;
+      left: 75%;
+    }
+    
+    #node-seasonal {
+      top: 60%;
+      left: 25%;
+    }
+    
+    #node-breakfast {
+      top: 60%;
+      left: 50%;
+    }
+    
+    #node-dinner {
+      top: 60%;
+      left: 75%;
+    }
+    
+    /* ノードのコンテンツ位置 */
+    #content-philosophy {
+      top: 30%;
+      left: 25%;
+      transform: translateX(-50%);
+    }
+    
+    #content-fermentation {
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    #content-local-food {
+      top: 30%;
+      left: 75%;
+      transform: translateX(-50%);
+    }
+    
+    #content-seasonal {
+      top: 70%;
+      left: 25%;
+      transform: translateX(-50%);
+    }
+    
+    #content-breakfast {
+      top: 70%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    #content-dinner {
+      top: 70%;
+      left: 75%;
+      transform: translateX(-50%);
+    }
+    
+    /* 水平コネクター */
+    .horizontal-connector {
+      height: 2px;
+    }
+    
+    /* 垂直コネクター */
+    .vertical-connector {
+      width: 2px;
+    }
+    
+    /* 具体的なコネクターの位置 */
+    #connector-1 {
+      top: 20%;
+      left: 25%;
+      width: 25%;
+      height: 2px;
+    }
+    
+    #connector-2 {
+      top: 20%;
+      left: 50%;
+      width: 25%;
+      height: 2px;
+    }
+    
+    #connector-3 {
+      top: 20%;
+      left: 25%;
+      width: 2px;
+      height: 40%;
+    }
+    
+    #connector-4 {
+      top: 20%;
+      left: 50%;
+      width: 2px;
+      height: 40%;
+    }
+    
+    #connector-5 {
+      top: 20%;
+      left: 75%;
+      width: 2px;
+      height: 40%;
+    }
+    
+    #connector-6 {
+      top: 60%;
+      left: 25%;
+      width: 25%;
+      height: 2px;
+    }
+    
+    #connector-7 {
+      top: 60%;
+      left: 50%;
+      width: 25%;
+      height: 2px;
+    }
+    
+    .recommendation-section {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto 60px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .recommendation-title {
+      font-size: 22px;
+      color: #3a2a1a;
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+    
+    .recommendation-courses {
+      margin-bottom: 30px;
+    }
+    
+    .recommendation-course {
+      border-left: 3px solid #9a8478;
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .recommendation-course h3 {
+      font-size: 18px;
+      color: #3a2a1a;
+      margin-bottom: 10px;
+    }
+    
+    .recommendation-course p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
+    .recommendation-course-arrows {
+      display: flex;
+      align-items: center;
+      margin: 15px 0;
+      font-size: 14px;
+      color: #9a8478;
+    }
+    
+    .recommendation-arrow {
+      margin: 0 5px;
+    }
+    
+    .seasonal-highlight {
+      margin-top: 40px;
+    }
+    
+    .seasonal-cards {
+      display: flex;
+      overflow-x: auto;
+      gap: 20px;
+      padding: 10px 0 20px;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    .seasonal-cards::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .seasonal-card {
+      flex: 0 0 auto;
+      width: 280px;
+      background-color: #fbf8f5;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+    
+    .seasonal-card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    
+    .seasonal-card-content {
+      padding: 20px;
+    }
+    
+    .seasonal-card-title {
+      font-size: 16px;
+      color: #3a2a1a;
+      margin-bottom: 10px;
+    }
+    
+    .seasonal-card-description {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+    
+    .seasonal-card-link {
+      display: inline-block;
+      color: #9a8478;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    
+    .seasonal-card-link:hover {
+      text-decoration: underline;
+    }
+    
+    footer {
+      background-color: #3a2a1a;
+      color: white;
+      padding: 50px 0;
+      text-align: center;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .footer-links a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    
+    .footer-info {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+      }
+      
+      .story-map-container {
+        height: 800px;
+      }
+      
+      .map-node {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .map-node-icon {
+        font-size: 24px;
+      }
+      
+      #node-philosophy {
+        top: 10%;
+        left: 50%;
+      }
+      
+      #node-fermentation {
+        top: 25%;
+        left: 25%;
+      }
+      
+      #node-local-food {
+        top: 25%;
+        left: 75%;
+      }
+      
+      #node-seasonal {
+        top: 40%;
+        left: 50%;
+      }
+      
+      #node-breakfast {
+        top: 55%;
+        left: 25%;
+      }
+      
+      #node-dinner {
+        top: 55%;
+        left: 75%;
+      }
+      
+      /* コンテンツの位置も調整 */
+      #content-philosophy {
+        top: 18%;
+        left: 50%;
+      }
+      
+      #content-fermentation {
+        top: 33%;
+        left: 25%;
+      }
+      
+      #content-local-food {
+        top: 33%;
+        left: 75%;
+      }
+      
+      #content-seasonal {
+        top: 48%;
+        left: 50%;
+      }
+      
+      #content-breakfast {
+        top: 63%;
+        left: 25%;
+      }
+      
+      #content-dinner {
+        top: 63%;
+        left: 75%;
+      }
+      
+      /* コネクターも調整が必要 */
+      /* モバイル用コネクター位置は省略 */
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">匠のこころ 吉川屋</div>
+    <nav>
+      <ul>
+        <li><a href="#">温泉</a></li>
+        <li><a href="#">お部屋</a></li>
+        <li><a href="#" class="active">料理</a></li>
+        <li><a href="#">周辺案内</a></li>
+        <li><a href="#" class="reserve-btn">ご予約</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="main-container">
+    <section class="interest-section">
+      <h2 class="section-title">あなたの関心は何ですか？</h2>
+      <div class="interest-buttons">
+        <button class="interest-button active" data-target="philosophy">料理の物語</button>
+        <button class="interest-button" data-target="fermentation">健康と発酵</button>
+        <button class="interest-button" data-target="local-food">食材の宝庫</button>
+        <button class="interest-button" data-target="seasonal">四季の料理</button>
+      </div>
+    </section>
+
+    <section class="story-map-section">
+      <div class="story-map-container">
+        <div class="story-map"></div>
+        <div class="map-nodes">
+          <!-- コネクター -->
+          <div class="map-connector horizontal-connector" id="connector-1"></div>
+          <div class="map-connector horizontal-connector" id="connector-2"></div>
+          <div class="map-connector vertical-connector" id="connector-3"></div>
+          <div class="map-connector vertical-connector" id="connector-4"></div>
+          <div class="map-connector vertical-connector" id="connector-5"></div>
+          <div class="map-connector horizontal-connector" id="connector-6"></div>
+          <div class="map-connector horizontal-connector" id="connector-7"></div>
+          
+          <!-- ノード -->
+          <div class="map-node" id="node-philosophy" data-content="content-philosophy">
+            <div class="map-node-icon">🧠</div>
+          </div>
+          <div class="map-node" id="node-fermentation" data-content="content-fermentation">
+            <div class="map-node-icon">🧪</div>
+          </div>
+          <div class="map-node" id="node-local-food" data-content="content-local-food">
+            <div class="map-node-icon">🌱</div>
+          </div>
+          <div class="map-node" id="node-seasonal" data-content="content-seasonal">
+            <div class="map-node-icon">🍂</div>
+          </div>
+          <div class="map-node" id="node-breakfast" data-content="content-breakfast">
+            <div class="map-node-icon">☀️</div>
+          </div>
+          <div class="map-node" id="node-dinner" data-content="content-dinner">
+            <div class="map-node-icon">🌙</div>
+          </div>
+          
+          <!-- ノードのコンテンツ -->
+          <div class="map-node-content" id="content-philosophy">
+            <h3>料理長の哲学</h3>
+            <p>「地域の宝を表現する」という想いで15歳から料理の道を歩んできた大友料理長。和食とは世界NO.1の健康食品と語る、その信念と物語。</p>
+            <a href="#" class="map-node-link">詳しく見る</a>
+          </div>
+          <div class="map-node-content" id="content-fermentation">
+            <h3>発酵の神秘</h3>
+            <p>古来より伝わる発酵の技と知恵。糠漬けの汁を活かした独自の調理法や、地元の酒蔵との連携など、伝統を革新的に進化させる試み。</p>
+            <a href="#" class="map-node-link">詳しく見る</a>
+          </div>
+          <div class="map-node-content" id="content-local-food">
+            <h3>福島の至宝</h3>
+            <p>福島牛、常磐もの、地元フルーツなど、福島が誇る豊かな食材の数々。生産者との絆が生み出す、ここでしか味わえない料理。</p>
+            <a href="#" class="map-node-link">詳しく見る</a>
+          </div>
+          <div class="map-node-content" id="content-seasonal">
+            <h3>四季の懐石</h3>
+            <p>春夏秋冬、移ろいゆく季節の恵みを料理で表現。旬の食材を活かした懐石料理は、日本の美意識そのもの。</p>
+            <a href="#" class="map-node-link">詳しく見る</a>
+          </div>
+          <div class="map-node-content" id="content-breakfast">
+            <h3>健康朝食</h3>
+            <p>体に優しい朝の目覚め。甘酒フレンチトーストや水耕栽培の無農薬野菜など、一日の始まりを元気にする健康朝食。</p>
+            <a href="#" class="map-node-link">詳しく見る</a>
+          </div>
+          <div class="map-node-content" id="content-dinner">
+            <h3>夕食の饗宴</h3>
+            <p>福島の食文化を凝縮した懐石料理。一品一品に込められた料理長の想いと技が、忘れられない食体験を生み出します。</p>
+            <a href="#" class="map-node-link">詳しく見る</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="recommendation-section">
+      <h3 class="recommendation-title">おすすめの探索コース</h3>
+      <div class="recommendation-courses">
+        <div class="recommendation-course">
+          <h3>初めての方は</h3>
+          <p>吉川屋の料理の世界を知るための最適なルート</p>
+          <div class="recommendation-course-arrows">
+            料理長の哲学 <span class="recommendation-arrow">→</span> 四季の懐石 <span class="recommendation-arrow">→</span> 夕食の饗宴
+          </div>
+        </div>
+        <div class="recommendation-course">
+          <h3>健康志向の方</h3>
+          <p>体に優しい発酵食品と朝食を中心に</p>
+          <div class="recommendation-course-arrows">
+            発酵の神秘 <span class="recommendation-arrow">→</span> 健康朝食 <span class="recommendation-arrow">→</span> 福島の至宝
+          </div>
+        </div>
+        <div class="recommendation-course">
+          <h3>食通の方は</h3>
+          <p>地元の厳選食材とその調理法を深堀り</p>
+          <div class="recommendation-course-arrows">
+            福島の至宝 <span class="recommendation-arrow">→</span> 夕食の饗宴 <span class="recommendation-arrow">→</span> 料理長の哲学
+          </div>
+        </div>
+      </div>
+      
+      <div class="seasonal-highlight">
+        <h3 class="recommendation-title">旬のハイライト</h3>
+        <div class="seasonal-cards">
+          <div class="seasonal-card">
+            <img src="/api/placeholder/280/180" alt="山菜と福島牛の小鍋仕立て" class="seasonal-card-img">
+            <div class="seasonal-card-content">
+              <h4 class="seasonal-card-title">山菜と福島牛の小鍋仕立て</h4>
+              <p class="seasonal-card-description">春の山菜の香りと福島牛の旨味が溶け合う贅沢な一品。自家製の出汁をベースに...</p>
+              <a href="#" class="seasonal-card-link">詳しく見る →</a>
+            </div>
+          </div>
+          <div class="seasonal-card">
+            <img src="/api/placeholder/280/180" alt="甘酒フレンチトースト" class="seasonal-card-img">
+            <div class="seasonal-card-content">
+              <h4 class="seasonal-card-title">甘酒フレンチトースト</h4>
+              <p class="seasonal-card-description">朝食の人気メニュー。甘酒を使った生地にじっくり漬け込んだパンを、香ばしく焼き上げました...</p>
+              <a href="#" class="seasonal-card-link">詳しく見る →</a>
+            </div>
+          </div>
+          <div class="seasonal-card">
+            <img src="/api/placeholder/280/180" alt="自家製糠漬けのムース仕立て" class="seasonal-card-img">
+            <div class="seasonal-card-content">
+              <h4 class="seasonal-card-title">自家製糠漬けのムース仕立て</h4>
+              <p class="seasonal-card-description">糠床から生まれる深い旨味と香りを、現代的な技法で表現。発酵の神秘を感じる一皿...</p>
+              <a href="#" class="seasonal-card-link">詳しく見る →</a>
+            </div>
+          </div>
+          <div class="seasonal-card">
+            <img src="/api/placeholder/280/180" alt="福島桃のコンポート" class="seasonal-card-img">
+            <div class="seasonal-card-content">
+              <h4 class="seasonal-card-title">福島桃のコンポート</h4>
+              <p class="seasonal-card-description">福島が誇る桃の風味を閉じ込めたコンポート。年間を通して楽しめる、吉川屋特製の保存食...</p>
+              <a href="#" class="seasonal-card-link">詳しく見る →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="#">温泉</a>
+      <a href="#">お部屋</a>
+      <a href="#">料理</a>
+      <a href="#">周辺案内</a>
+      <a href="#">アクセス</a>
+      <a href="#">お問い合わせ</a>
+    </div>
+    <div class="footer-info">
+      <p>匠のこころ 吉川屋</p>
+      <p>〒960-0201 福島県福島市飯坂町湯野字新湯6</p>
+      <p>TEL: 024-542-2431</p>
+    </div>
+  </footer>
+
+  <script>
+    // 関心ボタン切り替え
+    const interestButtons = document.querySelectorAll('.interest-button');
+    interestButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        // 現在のアクティブボタンからクラスを削除
+        document.querySelector('.interest-button.active').classList.remove('active');
+        // クリックされたボタンにアクティブクラスを追加
+        this.classList.add('active');
+        
+        // ターゲットノードをハイライト
+        const target = this.getAttribute('data-target');
+        highlightNode(target);
+      });
+    });
+    
+    // ノードのハイライト
+    function highlightNode(target) {
+      // すべてのノードの強調をリセット
+      const nodes = document.querySelectorAll('.map-node');
+      nodes.forEach(node => {
+        node.style.transform = 'scale(1)';
+        node.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+      });
+      
+      // ターゲットノードを強調
+      const targetNode = document.getElementById('node-' + target);
+      if (targetNode) {
+        targetNode.style.transform = 'scale(1.2)';
+        targetNode.style.boxShadow = '0 10px 30px rgba(154, 132, 120, 0.4)';
+        
+        // コンテンツを表示
+        const contentId = targetNode.getAttribute('data-content');
+        showContent(contentId);
+      }
+    }
+    
+    // コンテンツ表示
+    function showContent(contentId) {
+      // すべてのコンテンツを非表示
+      const contents = document.querySelectorAll('.map-node-content');
+      contents.forEach(content => {
+        content.classList.remove('show');
+      });
+      
+      // 指定されたコンテンツを表示
+      const targetContent = document.getElementById(contentId);
+      if (targetContent) {
+        targetContent.classList.add('show');
+      }
+    }
+    
+    // ノードのクリックイベント
+    const mapNodes = document.querySelectorAll('.map-node');
+    mapNodes.forEach(node => {
+      node.addEventListener('click', function() {
+        const contentId = this.getAttribute('data-content');
+        showContent(contentId);
+      });
+    });
+    
+    // 初期状態でのハイライト
+    window.addEventListener('load', function() {
+      highlightNode('philosophy');
+    });
+  </script>
+</body>
+</html>

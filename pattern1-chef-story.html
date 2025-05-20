@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吉川屋 - 大友料理長の物語</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Serif JP', serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #faf7f2;
+    }
+    
+    header {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 700;
+      font-size: 24px;
+      color: #3a2a1a;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+    
+    nav ul li {
+      margin-left: 30px;
+    }
+    
+    nav ul li a {
+      text-decoration: none;
+      color: #3a2a1a;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    nav ul li a:hover {
+      color: #9a8478;
+    }
+    
+    .reserve-btn {
+      background-color: #9a8478;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 4px;
+    }
+    
+    .breadcrumb {
+      background-color: #f2efe9;
+      padding: 15px;
+      margin-top: 80px;
+      font-size: 14px;
+    }
+    
+    .breadcrumb a {
+      color: #9a8478;
+      text-decoration: none;
+    }
+    
+    .breadcrumb span {
+      color: #333;
+    }
+    
+    .page-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 50px 20px;
+    }
+    
+    .chef-video {
+      width: 100%;
+      height: 500px;
+      background-color: #eae6e1;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 50px;
+      position: relative;
+    }
+    
+    .chef-video img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .play-button:hover {
+      background-color: rgba(255, 255, 255, 1);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+    
+    .play-button::after {
+      content: "";
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 15px 0 15px 25px;
+      border-color: transparent transparent transparent #9a8478;
+      margin-left: 5px;
+    }
+    
+    .section-title {
+      font-size: 28px;
+      color: #3a2a1a;
+      font-weight: 300;
+      margin-bottom: 30px;
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+    
+    .section-divider {
+      width: 50px;
+      height: 1px;
+      background-color: #9a8478;
+      margin: 0 auto 40px;
+    }
+    
+    .timeline {
+      position: relative;
+      margin: 0 auto 80px;
+    }
+    
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 100%;
+      background-color: #ddd;
+      transform: translateX(-50%);
+    }
+    
+    .timeline-item {
+      margin-bottom: 60px;
+      position: relative;
+    }
+    
+    .timeline-dot {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 20px;
+      height: 20px;
+      background-color: #9a8478;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .timeline-content {
+      width: 45%;
+      padding: 30px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .timeline-item:nth-child(odd) .timeline-content {
+      margin-right: auto;
+    }
+    
+    .timeline-item:nth-child(even) .timeline-content {
+      margin-left: auto;
+    }
+    
+    .timeline-title {
+      font-size: 20px;
+      color: #3a2a1a;
+      margin-bottom: 15px;
+    }
+    
+    .timeline-text {
+      margin-bottom: 15px;
+    }
+    
+    .philosophy-section {
+      margin-bottom: 80px;
+    }
+    
+    .quote {
+      font-size: 24px;
+      font-style: italic;
+      color: #9a8478;
+      text-align: center;
+      margin: 40px 0;
+      line-height: 1.8;
+    }
+    
+    .philosophy-images {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+    }
+    
+    .philosophy-image {
+      border-radius: 10px;
+      overflow: hidden;
+      height: 200px;
+    }
+    
+    .philosophy-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.3s ease;
+    }
+    
+    .philosophy-image:hover img {
+      transform: scale(1.05);
+    }
+    
+    .next-section {
+      text-align: center;
+      margin-top: 80px;
+    }
+    
+    .next-link {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #9a8478;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .next-link:hover {
+      background-color: #8a7468;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    footer {
+      background-color: #3a2a1a;
+      color: white;
+      padding: 50px 0;
+      text-align: center;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .footer-links a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    
+    .footer-info {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      .timeline::before {
+        left: 40px;
+      }
+      
+      .timeline-dot {
+        left: 40px;
+      }
+      
+      .timeline-content {
+        width: calc(100% - 80px);
+        margin-left: 80px !important;
+      }
+      
+      .philosophy-images {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">匠のこころ 吉川屋</div>
+    <nav>
+      <ul>
+        <li><a href="#">温泉</a></li>
+        <li><a href="#">お部屋</a></li>
+        <li><a href="#" class="active">料理</a></li>
+        <li><a href="#">周辺案内</a></li>
+        <li><a href="#" class="reserve-btn">ご予約</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="#">ホーム</a> &gt; <a href="#">料理</a> &gt; <span>大友料理長の物語</span>
+  </div>
+
+  <div class="page-content">
+    <div class="chef-video">
+      <img src="/api/placeholder/900/500" alt="大友料理長インタビュー">
+      <div class="play-button"></div>
+    </div>
+
+    <h2 class="section-title">15歳から56歳までの料理人としての旅</h2>
+    <div class="section-divider"></div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-title">15歳 料理の道へ</h3>
+          <p class="timeline-text">「料理人としての第一歩を踏み出したのは15歳の時でした。小さい頃から食べることが大好きで、料理を作る過程に魅了されていました。」</p>
+          <p class="timeline-text">地元の料亭で見習いとしてスタートした大友料理長。包丁の持ち方から教わった日々が、今の基礎を作りました。</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-title">カウンター料理の修行時代</h3>
+          <p class="timeline-text">「東京の浅草で、カウンター越しにお客様と向き合う料理人としての経験は、私の原点です。サラリーマンのお客様の表情が、一品の料理で変わっていく瞬間が何よりの喜びでした。」</p>
+          <p class="timeline-text">目の前のお客様に直接料理を提供する緊張感と喜びが、料理への情熱をさらに高めました。</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-title">「お客様の笑顔のために」という原点</h3>
+          <p class="timeline-text">「料理は単なる食べ物ではなく、人を元気にし、笑顔にするものだと信じています。一日の疲れを癒し、明日への活力を生み出す—それが私の考える料理の役割です。」</p>
+          <p class="timeline-text">この信念は大友料理長が40年以上料理の道を歩んできた中でも変わらない原点となっています。</p>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h3 class="timeline-title">吉川屋との出会い</h3>
+          <p class="timeline-text">「吉川屋に移ってきたのは、地域の食材の可能性に魅了されたからです。福島には本当に素晴らしい食材がある。これらを活かして、まだ誰も見たことがない料理を創りたいと思いました。」</p>
+          <p class="timeline-text">宮城県秋保温泉での経験を経て、約12年前に吉川屋へ。以来、「地域の宝を表現する」料理を追求し続けています。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="philosophy-section">
+      <h2 class="section-title">料理哲学</h2>
+      <div class="section-divider"></div>
+
+      <div class="quote">
+        「和食とは世界NO.1の健康食品。発酵食、主菜・副菜が揃い、シンプルで素材の味を活かす—これが私の信じる和食の本質です。」
+      </div>
+
+      <p>大友料理長が創り出す料理の根底にあるのは、食材への深い敬意と真摯な向き合い方です。地域の生産者と直接関わり、その想いを受け継ぎながら、「素材を中心に置いた」繊細な味付けを心がけています。</p>
+      <p>特に発酵食品への探究は、吉川屋独自の「発酵ラボ」として結実。ぬか漬けの汁を活かした調理法や、地元の酒蔵との連携など、伝統を革新的に進化させる試みを続けています。</p>
+      <p>また「宿は地域の歴史を背負って未来に繋げていく使命がある」という考えから、これからは「福島万年ロマン懐石」という壮大なプロジェクトも構想中です。縄文時代から現代まで、福島の歴史と食文化を料理で表現する試みは、料理長の集大成ともいえるでしょう。</p>
+
+      <div class="philosophy-images">
+        <div class="philosophy-image">
+          <img src="/api/placeholder/300/200" alt="地元生産者との関わり">
+        </div>
+        <div class="philosophy-image">
+          <img src="/api/placeholder/300/200" alt="発酵ラボの様子">
+        </div>
+        <div class="philosophy-image">
+          <img src="/api/placeholder/300/200" alt="料理長の調理風景">
+        </div>
+      </div>
+    </div>
+
+    <div class="next-section">
+      <a href="#" class="next-link">四季の懐石を見る →</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="#">温泉</a>
+      <a href="#">お部屋</a>
+      <a href="#">料理</a>
+      <a href="#">周辺案内</a>
+      <a href="#">アクセス</a>
+      <a href="#">お問い合わせ</a>
+    </div>
+    <div class="footer-info">
+      <p>匠のこころ 吉川屋</p>
+      <p>〒960-0201 福島県福島市飯坂町湯野字新湯6</p>
+      <p>TEL: 024-542-2431</p>
+    </div>
+  </footer>
+  
+  <script>
+    // 動画再生ボタンの処理
+    document.querySelector('.play-button').addEventListener('click', function() {
+      alert('動画の再生機能はデモ版では利用できません。実装時には実際の動画再生が行われます。');
+    });
+    
+    // スクロールアニメーション
+    document.addEventListener('DOMContentLoaded', function() {
+      const timelineItems = document.querySelectorAll('.timeline-item');
+      
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('animated');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        
+        timelineItems.forEach(item => {
+          item.style.opacity = '0';
+          item.style.transform = 'translateY(20px)';
+          item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+          observer.observe(item);
+        });
+        
+        document.addEventListener('scroll', () => {
+          timelineItems.forEach(item => {
+            if (item.getBoundingClientRect().top < window.innerHeight * 0.8) {
+              item.style.opacity = '1';
+              item.style.transform = 'translateY(0)';
+            }
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

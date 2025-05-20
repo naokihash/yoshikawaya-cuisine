@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吉川屋 - 発酵の神秘</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Serif JP', serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #faf7f2;
+    }
+    
+    header {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 700;
+      font-size: 24px;
+      color: #3a2a1a;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+    
+    nav ul li {
+      margin-left: 30px;
+    }
+    
+    nav ul li a {
+      text-decoration: none;
+      color: #3a2a1a;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    nav ul li a:hover {
+      color: #9a8478;
+    }
+    
+    .reserve-btn {
+      background-color: #9a8478;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 4px;
+    }
+    
+    .breadcrumb {
+      background-color: #f2efe9;
+      padding: 15px;
+      margin-top: 80px;
+      font-size: 14px;
+    }
+    
+    .breadcrumb a {
+      color: #9a8478;
+      text-decoration: none;
+    }
+    
+    .breadcrumb span {
+      color: #333;
+    }
+    
+    .hero-banner {
+      height: 500px;
+      background-image: url('/api/placeholder/1600/900');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      color: white;
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 1;
+    }
+    
+    .hero-banner-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+    
+    .hero-banner h1 {
+      font-size: 42px;
+      margin-bottom: 20px;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+    }
+    
+    .hero-banner p {
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .page-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+    
+    .section {
+      margin-bottom: 80px;
+    }
+    
+    .section-title {
+      font-size: 28px;
+      color: #3a2a1a;
+      font-weight: 300;
+      margin-bottom: 30px;
+      letter-spacing: 0.1em;
+    }
+    
+    .section-divider {
+      width: 50px;
+      height: 1px;
+      background-color: #9a8478;
+      margin-bottom: 40px;
+    }
+    
+    .fermentation-lab {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .fermentation-lab-image {
+      flex: 1;
+      min-width: 300px;
+      height: 350px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .fermentation-lab-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .fermentation-lab-content {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .fermentation-lab-content h3 {
+      font-size: 22px;
+      color: #3a2a1a;
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+    
+    .fermentation-lab-content p {
+      margin-bottom: 20px;
+    }
+    
+    .toggle-details {
+      background: none;
+      border: 1px solid #9a8478;
+      color: #9a8478;
+      padding: 8px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    
+    .toggle-details:hover {
+      background-color: #9a8478;
+      color: white;
+    }
+    
+    .hidden-details {
+      margin-top: 20px;
+      display: none;
+    }
+    
+    .hidden-details.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .health-benefits {
+      background-color: white;
+      padding: 50px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 60px;
+    }
+    
+    .health-benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+    
+    .health-benefit-item {
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .health-benefit-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 20px;
+      background-color: #f2efe9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: #9a8478;
+    }
+    
+    .health-benefit-title {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #3a2a1a;
+    }
+    
+    .fukushima-project {
+      background-color: #f2efe9;
+      padding: 40px;
+      border-radius: 10px;
+      margin-bottom: 60px;
+    }
+    
+    .fukushima-project-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .fukushima-project-logo {
+      width: 120px;
+      height: 120px;
+      background-color: #9a8478;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+      margin-right: 30px;
+      flex-shrink: 0;
+    }
+    
+    .fukushima-project-title {
+      flex: 1;
+    }
+    
+    .fukushima-project-title h3 {
+      font-size: 24px;
+      color: #3a2a1a;
+      margin-bottom: 10px;
+    }
+    
+    .fukushima-project-description {
+      margin-bottom: 30px;
+    }
+    
+    .project-link {
+      display: inline-block;
+      padding: 10px 25px;
+      background-color: #9a8478;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .project-link:hover {
+      background-color: #8a7468;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    footer {
+      background-color: #3a2a1a;
+      color: white;
+      padding: 50px 0;
+      text-align: center;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .footer-links a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    
+    .footer-info {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-banner h1 {
+        font-size: 32px;
+      }
+      
+      .fermentation-lab {
+        flex-direction: column;
+      }
+      
+      .fermentation-lab-image, .fermentation-lab-content {
+        width: 100%;
+      }
+      
+      .fukushima-project-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .fukushima-project-logo {
+        margin-right: 0;
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">匠のこころ 吉川屋</div>
+    <nav>
+      <ul>
+        <li><a href="#">温泉</a></li>
+        <li><a href="#">お部屋</a></li>
+        <li><a href="#" class="active">料理</a></li>
+        <li><a href="#">周辺案内</a></li>
+        <li><a href="#" class="reserve-btn">ご予約</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="#">ホーム</a> &gt; <a href="#">料理</a> &gt; <span>発酵の神秘</span>
+  </div>
+
+  <section class="hero-banner">
+    <div class="hero-banner-content">
+      <h1>発酵がもたらす、味と健康の奇跡</h1>
+      <p>微生物の力で生まれる、深い旨味と栄養。吉川屋が探求する発酵の世界へようこそ。</p>
+    </div>
+  </section>
+
+  <div class="page-content">
+    <section class="section">
+      <h2 class="section-title">発酵ラボの取り組み</h2>
+      <div class="section-divider"></div>
+
+      <div class="fermentation-lab">
+        <div class="fermentation-lab-image">
+          <img src="/api/placeholder/500/350" alt="発酵ラボの様子">
+        </div>
+        <div class="fermentation-lab-content">
+          <h3>食材の可能性を広げる、吉川屋発酵ラボ</h3>
+          <p>吉川屋では、伝統的な発酵技術と現代的なアプローチを融合させた「発酵ラボ」を設けています。ここでは、糠漬けや味噌、醤油、甘酒など様々な発酵食品の研究と開発が日々行われています。</p>
+          <p>特に注目すべきは、「糠漬けの汁」を活用した独自の調理法。通常は捨てられてしまうこの液体に、大友料理長は新たな価値を見出しました。</p>
+          <button class="toggle-details" id="nuka-toggle">詳しく見る</button>
+          <div class="hidden-details" id="nuka-details">
+            <p>「糠漬けの汁には、発酵の過程で生まれる複雑な旨味成分が溶け込んでいます。これを活用することで、塩と糠漬けの汁、水だけというシンプルな材料で深い味わいを実現できるのです。」と大友料理長は語ります。</p>
+            <p>さらに、地元の酒蔵から譲り受けた酒粕を活用した発酵食品の開発や、温泉水を利用した発酵技術の研究など、吉川屋ならではの取り組みが進行中です。微生物の力を借りて食材の可能性を広げる試みは、まさに「発酵の神秘」そのものです。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="fermentation-lab">
+        <div class="fermentation-lab-content">
+          <h3>大友料理長の発酵へのこだわり</h3>
+          <p>「発酵ラボは生き物（微生物）です。日々変化し、進化していく。その特徴をこれからもっと知りたい」と語る大友料理長。40年以上の料理人としての経験を持ちながらも、常に新しい挑戦を続けています。</p>
+          <p>四季折々の食材と発酵食品を組み合わせた創作料理は、吉川屋の料理の大きな特徴となっています。</p>
+          <button class="toggle-details" id="chef-toggle">詳しく見る</button>
+          <div class="hidden-details" id="chef-details">
+            <p>「たけのこのムースに糠漬けをムースにして添える」「お刺身には特製の醤油と新玉ねぎのロースト」「甘酒をプリンに仕立てる」など、発酵食品を現代的にアレンジした料理の数々。</p>
+            <p>また、ぬか床も自家製にこだわり、高竹や朝鮮人参の香り付けに使用するなど、細部まで徹底した姿勢が伺えます。「次のステップとして、温泉のお湯で発酵ものをよりアップデートできないか」というチャレンジも検討中とのこと。</p>
+          </div>
+        </div>
+        <div class="fermentation-lab-image">
+          <img src="/api/placeholder/500/350" alt="発酵食品を使った料理">
+        </div>
+      </div>
+    </section>
+
+    <section class="section health-benefits">
+      <h2 class="section-title">食と健康</h2>
+      <div class="section-divider"></div>
+
+      <p>発酵食品は、単においしいだけでなく、私たちの健康にも様々な恩恵をもたらします。近年の研究では、納豆キナーゼが免疫力向上に効果があることも明らかになっています。吉川屋では、こうした発酵食品の健康効果にも着目し、「心と体に優しい」料理を提供しています。</p>
+
+      <div class="health-benefits-grid">
+        <div class="health-benefit-item">
+          <div class="health-benefit-icon">消</div>
+          <h4 class="health-benefit-title">消化を助ける</h4>
+          <p>発酵食品に含まれる酵素や有用菌が、腸内環境を整え、消化を促進します。</p>
+        </div>
+        <div class="health-benefit-item">
+          <div class="health-benefit-icon">免</div>
+          <h4 class="health-benefit-title">免疫力アップ</h4>
+          <p>発酵食品に含まれる乳酸菌などが腸内フローラを整え、免疫力の向上に寄与します。</p>
+        </div>
+        <div class="health-benefit-item">
+          <div class="health-benefit-icon">抗</div>
+          <h4 class="health-benefit-title">抗酸化作用</h4>
+          <p>発酵過程で生まれる成分には、体を酸化ストレスから守る作用があります。</p>
+        </div>
+        <div class="health-benefit-item">
+          <div class="health-benefit-icon">栄</div>
+          <h4 class="health-benefit-title">栄養価の向上</h4>
+          <p>発酵によって食材の栄養素がより吸収しやすい形に変化し、栄養価が高まります。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section fukushima-project">
+      <div class="fukushima-project-header">
+        <div class="fukushima-project-logo">美を醸す<br>ふくしま</div>
+        <div class="fukushima-project-title">
+          <h3>『美を醸すふくしま』とのコラボレーション</h3>
+          <p>福島県が展開する発酵食品プロジェクトとの連携</p>
+        </div>
+      </div>
+
+      <div class="fukushima-project-description">
+        <p>吉川屋では、福島県の『美を醸すふくしま』プロジェクトと連携し、地域の発酵文化を次世代に伝える取り組みを行っています。地元の酒蔵や糀メーカーとコラボレーションした「日本酒と発酵食品を愉しむ夕べ」などのイベントを定期的に開催。</p>
+        <p>福島の豊かな自然と発酵の技が生み出す美味と健康を、多くの方に体験していただける機会を創出しています。大友料理長は、このプロジェクトの「発酵アンバサダー」としても活動しています。</p>
+      </div>
+
+      <a href="https://www.tif.ne.jp/hacco/" class="project-link" target="_blank">プロジェクト詳細を見る</a>
+    </section>
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="#">温泉</a>
+      <a href="#">お部屋</a>
+      <a href="#">料理</a>
+      <a href="#">周辺案内</a>
+      <a href="#">アクセス</a>
+      <a href="#">お問い合わせ</a>
+    </div>
+    <div class="footer-info">
+      <p>匠のこころ 吉川屋</p>
+      <p>〒960-0201 福島県福島市飯坂町湯野字新湯6</p>
+      <p>TEL: 024-542-2431</p>
+    </div>
+  </footer>
+
+  <script>
+    // 詳細表示のトグル機能
+    document.getElementById('nuka-toggle').addEventListener('click', function() {
+      var details = document.getElementById('nuka-details');
+      details.classList.toggle('show');
+      
+      if (details.classList.contains('show')) {
+        this.textContent = '閉じる';
+      } else {
+        this.textContent = '詳しく見る';
+      }
+    });
+    
+    document.getElementById('chef-toggle').addEventListener('click', function() {
+      var details = document.getElementById('chef-details');
+      details.classList.toggle('show');
+      
+      if (details.classList.contains('show')) {
+        this.textContent = '閉じる';
+      } else {
+        this.textContent = '詳しく見る';
+      }
+    });
+    
+    // スクロールアニメーション
+    document.addEventListener('DOMContentLoaded', function() {
+      const sections = document.querySelectorAll('.section');
+      
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = '1';
+              entry.target.style.transform = 'translateY(0)';
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        
+        sections.forEach(section => {
+          section.style.opacity = '0';
+          section.style.transform = 'translateY(20px)';
+          section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+          observer.observe(section);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

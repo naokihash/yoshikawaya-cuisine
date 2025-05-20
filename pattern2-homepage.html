@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吉川屋 - 料理ページ (パターン2: ビジュアル体験型)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #fff;
+    }
+    
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .logo {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: #222;
+    }
+    
+    .menu-toggle {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #333;
+      cursor: pointer;
+    }
+    
+    .fullscreen-slider {
+      height: 100vh;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .slider-container {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+    
+    .slide {
+      min-width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    .slide-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .slide-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 50px 30px 30px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+      color: white;
+    }
+    
+    .slide-title {
+      font-size: 28px;
+      font-weight: 300;
+      margin-bottom: 10px;
+    }
+    
+    .slide-description {
+      font-size: 16px;
+      max-width: 600px;
+    }
+    
+    .slider-indicators {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+    
+    .indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+    }
+    
+    .indicator.active {
+      background-color: white;
+    }
+    
+    .slider-nav {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      transform: translateY(-50%);
+    }
+    
+    .slider-nav-btn {
+      background-color: rgba(255, 255, 255, 0.2);
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .slider-nav-btn:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .hashtags {
+      position: absolute;
+      bottom: 80px;
+      left: 30px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .hashtag {
+      padding: 5px 15px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      font-size: 14px;
+      color: white;
+    }
+    
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      padding: 2px;
+      background-color: #f5f5f5;
+    }
+    
+    .category-item {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+    }
+    
+    .category-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .category-item:hover .category-img {
+      transform: scale(1.05);
+    }
+    
+    .category-title {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 15px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 16px;
+      text-align: center;
+    }
+    
+    .monthly-section {
+      padding: 60px 20px;
+    }
+    
+    .section-title {
+      font-size: 24px;
+      font-weight: 300;
+      margin-bottom: 15px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .section-title::after {
+      content: "";
+      display: block;
+      width: 30px;
+      height: 2px;
+      background-color: #333;
+      margin: 15px auto 30px;
+    }
+    
+    .monthly-cards {
+      display: flex;
+      overflow-x: auto;
+      gap: 20px;
+      padding: 10px 0 30px;
+      scrollbar-width: none;
+    }
+    
+    .monthly-cards::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .monthly-card {
+      min-width: 280px;
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .monthly-card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    .monthly-card-content {
+      padding: 20px;
+    }
+    
+    .monthly-card-title {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    
+    .monthly-card-description {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+    
+    .chef-section {
+      display: flex;
+      align-items: center;
+      padding: 40px 20px;
+      background-color: #f9f9f9;
+    }
+    
+    .chef-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 20px;
+    }
+    
+    .chef-content h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    
+    .chef-content p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 15px;
+    }
+    
+    .chef-link {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #333;
+      color: white;
+      text-decoration: none;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    
+    .instagram-section {
+      padding: 60px 20px;
+    }
+    
+    .instagram-feed {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    
+    .instagram-item {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+    }
+    
+    .instagram-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    
+    .instagram-item:hover .instagram-img {
+      transform: scale(1.05);
+    }
+    
+    .instagram-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .instagram-item:hover .instagram-overlay {
+      opacity: 1;
+    }
+    
+    .instagram-icon {
+      color: white;
+      font-size: 24px;
+    }
+    
+    .instagram-follow {
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .instagram-follow-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #e1306c;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    
+    .instagram-follow-btn-icon {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+    
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .menu-overlay.show {
+      display: flex;
+    }
+    
+    .menu-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    .menu-links {
+      text-align: center;
+    }
+    
+    .menu-link {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+      text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+      .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .instagram-feed {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .slide-title {
+        font-size: 24px;
+      }
+      
+      .slide-description {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">匠のこころ 吉川屋</div>
+    <button class="menu-toggle" id="menu-toggle">≡</button>
+  </header>
+
+  <div class="menu-overlay" id="menu-overlay">
+    <button class="menu-close" id="menu-close">×</button>
+    <div class="menu-links">
+      <a href="#" class="menu-link">ホーム</a>
+      <a href="#" class="menu-link">温泉</a>
+      <a href="#" class="menu-link">お部屋</a>
+      <a href="#" class="menu-link">料理</a>
+      <a href="#" class="menu-link">周辺案内</a>
+      <a href="#" class="menu-link">アクセス</a>
+      <a href="#" class="menu-link">ご予約</a>
+    </div>
+  </div>
+
+  <section class="fullscreen-slider">
+    <div class="slider-container" id="slider-container">
+      <div class="slide">
+        <img src="/api/placeholder/1600/900" alt="春の懐石料理" class="slide-img">
+        <div class="slide-overlay">
+          <h2 class="slide-title">春の息吹を感じる懐石料理</h2>
+          <p class="slide-description">山菜や春野菜の香り高い一品。福島の春の恵みを贅沢に愉しむ、吉川屋の季節の懐石。</p>
+        </div>
+      </div>
+      <div class="slide">
+        <img src="/api/placeholder/1600/900" alt="地元の発酵食品" class="slide-img">
+        <div class="slide-overlay">
+          <h2 class="slide-title">発酵の神秘が織りなす深い味わい</h2>
+          <p class="slide-description">地元の酒蔵の酒粕や自家製糠漬けを活かした独創的な料理の数々。</p>
+        </div>
+      </div>
+      <div class="slide">
+        <img src="/api/placeholder/1600/900" alt="福島牛の料理" class="slide-img">
+        <div class="slide-overlay">
+          <h2 class="slide-title">極上の福島牛を愉しむ</h2>
+          <p class="slide-description">厳選された福島牛の旨味を最大限に引き出す調理法で、贅沢なひとときを。</p>
+        </div>
+      </div>
+      <div class="slide">
+        <img src="/api/placeholder/1600/900" alt="朝食の風景" class="slide-img">
+        <div class="slide-overlay">
+          <h2 class="slide-title">朝の目覚めを優しく迎える健康朝食</h2>
+          <p class="slide-description">甘酒フレンチトーストや無農薬野菜など、体にやさしい朝の元気をチャージ。</p>
+        </div>
+      </div>
+      <div class="slide">
+        <img src="/api/placeholder/1600/900" alt="福島の果物デザート" class="slide-img">
+        <div class="slide-overlay">
+          <h2 class="slide-title">福島フルーツの甘美な余韻</h2>
+          <p class="slide-description">桃やりんごなど、福島が誇る果物を使った季節のデザート。</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="slider-indicators" id="slider-indicators">
+      <span class="indicator active"></span>
+      <span class="indicator"></span>
+      <span class="indicator"></span>
+      <span class="indicator"></span>
+      <span class="indicator"></span>
+    </div>
+    
+    <div class="slider-nav">
+      <button class="slider-nav-btn prev" id="prev-btn">❮</button>
+      <button class="slider-nav-btn next" id="next-btn">❯</button>
+    </div>
+    
+    <div class="hashtags">
+      <span class="hashtag">#福島の宝</span>
+      <span class="hashtag">#発酵の神秘</span>
+      <span class="hashtag">#四季の懐石</span>
+    </div>
+  </section>
+
+  <section class="category-grid">
+    <a href="#" class="category-item">
+      <img src="/api/placeholder/400/400" alt="春の料理" class="category-img">
+      <div class="category-title">春</div>
+    </a>
+    <a href="#" class="category-item">
+      <img src="/api/placeholder/400/400" alt="夏の料理" class="category-img">
+      <div class="category-title">夏</div>
+    </a>
+    <a href="#" class="category-item">
+      <img src="/api/placeholder/400/400" alt="秋の料理" class="category-img">
+      <div class="category-title">秋</div>
+    </a>
+    <a href="#" class="category-item">
+      <img src="/api/placeholder/400/400" alt="冬の料理" class="category-img">
+      <div class="category-title">冬</div>
+    </a>
+    <a href="#" class="category-item">
+      <img src="/api/placeholder/400/400" alt="朝食" class="category-img">
+      <div class="category-title">朝食</div>
+    </a>
+    <a href="#" class="category-item">
+      <img src="/api/placeholder/400/400" alt="夕食" class="category-img">
+      <div class="category-title">夕食</div>
+    </a>
+    <a href="#" class="category-item">
+      <img src="/api/placeholder/400/400" alt="特別懐石" class="category-img">
+      <div class="category-title">特別懐石</div>
+    </a>
+    <a href="#" class="category-item">
+      <img src="/api/placeholder/400/400" alt="発酵食品" class="category-img">
+      <div class="category-title">発酵食品</div>
+    </a>
+  </section>
+
+  <section class="monthly-section">
+    <h2 class="section-title">今月のおすすめ</h2>
+    <div class="monthly-cards">
+      <div class="monthly-card">
+        <img src="/api/placeholder/300/200" alt="山菜と福島牛の小鍋仕立て" class="monthly-card-img">
+        <div class="monthly-card-content">
+          <h3 class="monthly-card-title">山菜と福島牛の小鍋仕立て</h3>
+          <p class="monthly-card-description">春の山菜の香りと福島牛の旨味が溶け合う贅沢な一品。自家製の出汁をベースに、地元の食材の魅力を最大限に引き出しました。</p>
+        </div>
+      </div>
+      <div class="monthly-card">
+        <img src="/api/placeholder/300/200" alt="自家製糠漬けのムース仕立て" class="monthly-card-img">
+        <div class="monthly-card-content">
+          <h3 class="monthly-card-title">自家製糠漬けのムース仕立て</h3>
+          <p class="monthly-card-description">糠床から生まれる深い旨味と香りを、現代的な技法で表現。発酵の神秘を感じる一皿です。</p>
+        </div>
+      </div>
+      <div class="monthly-card">
+        <img src="/api/placeholder/300/200" alt="甘酒フレンチトースト" class="monthly-card-img">
+        <div class="monthly-card-content">
+          <h3 class="monthly-card-title">甘酒フレンチトースト</h3>
+          <p class="monthly-card-description">朝食の人気メニュー。甘酒を使った生地にじっくり漬け込んだパンを、香ばしく焼き上げました。</p>
+        </div>
+      </div>
+      <div class="monthly-card">
+        <img src="/api/placeholder/300/200" alt="福島桃のコンポート" class="monthly-card-img">
+        <div class="monthly-card-content">
+          <h3 class="monthly-card-title">福島桃のコンポート</h3>
+          <p class="monthly-card-description">福島が誇る桃の風味を閉じ込めたコンポート。年間を通して楽しめる、吉川屋特製の保存食です。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chef-section">
+    <img src="/api/placeholder/100/100" alt="大友料理長" class="chef-img">
+    <div class="chef-content">
+      <h3>料理長の思い</h3>
+      <p>「地域の宝を表現する」という想いで、福島の食材の魅力を最大限に引き出す料理を追求しています。15歳から料理の道を歩み、お客様の笑顔のために日々精進しています。</p>
+      <a href="#" class="chef-link">プロフィールを見る</a>
+    </div>
+  </section>
+
+  <section class="instagram-section">
+    <h2 class="section-title">料理の一コマ</h2>
+    <div class="instagram-feed">
+      <div class="instagram-item">
+        <img src="/api/placeholder/300/300" alt="Instagram写真" class="instagram-img">
+        <div class="instagram-overlay">
+          <span class="instagram-icon">♥</span>
+        </div>
+      </div>
+      <div class="instagram-item">
+        <img src="/api/placeholder/300/300" alt="Instagram写真" class="instagram-img">
+        <div class="instagram-overlay">
+          <span class="instagram-icon">♥</span>
+        </div>
+      </div>
+      <div class="instagram-item">
+        <img src="/api/placeholder/300/300" alt="Instagram写真" class="instagram-img">
+        <div class="instagram-overlay">
+          <span class="instagram-icon">♥</span>
+        </div>
+      </div>
+      <div class="instagram-item">
+        <img src="/api/placeholder/300/300" alt="Instagram写真" class="instagram-img">
+        <div class="instagram-overlay">
+          <span class="instagram-icon">♥</span>
+        </div>
+      </div>
+      <div class="instagram-item">
+        <img src="/api/placeholder/300/300" alt="Instagram写真" class="instagram-img">
+        <div class="instagram-overlay">
+          <span class="instagram-icon">♥</span>
+        </div>
+      </div>
+      <div class="instagram-item">
+        <img src="/api/placeholder/300/300" alt="Instagram写真" class="instagram-img">
+        <div class="instagram-overlay">
+          <span class="instagram-icon">♥</span>
+        </div>
+      </div>
+    </div>
+    <div class="instagram-follow">
+      <a href="#" class="instagram-follow-btn">
+        <span class="instagram-follow-btn-icon">📷</span>
+        フォローする
+      </a>
+    </div>
+  </section>
+
+  <script>
+    // メニュー開閉処理
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuClose = document.getElementById('menu-close');
+    const menuOverlay = document.getElementById('menu-overlay');
+    
+    menuToggle.addEventListener('click', function() {
+      menuOverlay.classList.add('show');
+    });
+    
+    menuClose.addEventListener('click', function() {
+      menuOverlay.classList.remove('show');
+    });
+    
+    // スライダー処理
+    const sliderContainer = document.getElementById('slider-container');
+    const slides = document.querySelectorAll('.slide');
+    const indicators = document.querySelectorAll('.indicator');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    let currentIndex = 0;
+    
+    function goToSlide(index) {
+      if (index < 0) {
+        index = slides.length - 1;
+      } else if (index >= slides.length) {
+        index = 0;
+      }
+      
+      sliderContainer.style.transform = `translateX(-${index * 100}%)`;
+      currentIndex = index;
+      
+      // インジケーターの更新
+      indicators.forEach((indicator, i) => {
+        if (i === currentIndex) {
+          indicator.classList.add('active');
+        } else {
+          indicator.classList.remove('active');
+        }
+      });
+    }
+    
+    prevBtn.addEventListener('click', () => {
+      goToSlide(currentIndex - 1);
+    });
+    
+    nextBtn.addEventListener('click', () => {
+      goToSlide(currentIndex + 1);
+    });
+    
+    // インジケータークリック
+    indicators.forEach((indicator, index) => {
+      indicator.addEventListener('click', () => {
+        goToSlide(index);
+      });
+    });
+    
+    // 自動スライド
+    let slideInterval = setInterval(() => {
+      goToSlide(currentIndex + 1);
+    }, 5000);
+    
+    // スライダーにマウスが乗ったら自動スライドを停止
+    sliderContainer.addEventListener('mouseenter', () => {
+      clearInterval(slideInterval);
+    });
+    
+    // スライダーからマウスが離れたら自動スライドを再開
+    sliderContainer.addEventListener('mouseleave', () => {
+      slideInterval = setInterval(() => {
+        goToSlide(currentIndex + 1);
+      }, 5000);
+    });
+    
+    // スワイプ対応
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    sliderContainer.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+    
+    sliderContainer.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].clientX;
+      handleSwipe();
+    });
+    
+    function handleSwipe() {
+      if (touchStartX - touchEndX > 50) {
+        // 左スワイプ
+        goToSlide(currentIndex + 1);
+      } else if (touchEndX - touchStartX > 50) {
+        // 右スワイプ
+        goToSlide(currentIndex - 1);
+      }
+    }
+  </script>
+</body>
+</html>

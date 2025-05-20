@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>吉川屋 - 福島万年ロマン懐石 (パターン3: インタラクティブストーリーテリング)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: #333;
+      line-height: 1.6;
+      background-color: #f8f5f2;
+    }
+    
+    header {
+      background-color: white;
+      padding: 15px 30px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: #3a2a1a;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+    
+    nav ul li {
+      margin-left: 30px;
+    }
+    
+    nav ul li a {
+      text-decoration: none;
+      color: #3a2a1a;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    nav ul li a:hover {
+      color: #9a8478;
+    }
+    
+    .reserve-btn {
+      background-color: #9a8478;
+      color: white !important;
+      padding: 8px 20px;
+      border-radius: 4px;
+    }
+    
+    .breadcrumb {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 15px 30px;
+      margin-top: 80px;
+      font-size: 14px;
+    }
+    
+    .breadcrumb a {
+      color: #9a8478;
+      text-decoration: none;
+    }
+    
+    .breadcrumb span {
+      color: #333;
+    }
+    
+    .main-container {
+      min-height: 100vh;
+    }
+    
+    .timeline-visual {
+      height: 300px;
+      position: relative;
+      background-color: #3a2a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      overflow: hidden;
+    }
+    
+    .timeline-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('/api/placeholder/1600/600');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.4;
+    }
+    
+    .timeline-title {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+    }
+    
+    .timeline-title h1 {
+      font-size: 36px;
+      font-weight: 300;
+      margin-bottom: 15px;
+      letter-spacing: 0.1em;
+    }
+    
+    .timeline-title p {
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .era-scroller {
+      position: relative;
+      padding: 40px 0;
+      background-color: #f1ede9;
+      overflow: hidden;
+    }
+    
+    .era-line {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #9a8478;
+      transform: translateY(-50%);
+    }
+    
+    .era-markers {
+      display: flex;
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+      justify-content: space-between;
+    }
+    
+    .era-marker {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      flex: 1;
+    }
+    
+    .era-dot {
+      width: 16px;
+      height: 16px;
+      background-color: #9a8478;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .era-marker.active .era-dot {
+      width: 24px;
+      height: 24px;
+      background-color: #3a2a1a;
+    }
+    
+    .era-year {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+    
+    .era-marker.active .era-year {
+      color: #3a2a1a;
+      font-weight: 500;
+    }
+    
+    .era-name {
+      font-size: 16px;
+      color: #3a2a1a;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .era-scroll-container {
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    
+    .era-scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .era-content-wrapper {
+      width: 100%;
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+    
+    .era-content {
+      min-width: 100%;
+      padding: 60px 30px;
+    }
+    
+    .era-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      align-items: center;
+    }
+    
+    .era-image {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .era-image img {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .era-details {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .era-details h2 {
+      font-size: 28px;
+      color: #3a2a1a;
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+    
+    .era-details p {
+      margin-bottom: 20px;
+      color: #666;
+    }
+    
+    .dish-preview {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+    
+    .dish-preview h3 {
+      font-size: 20px;
+      color: #3a2a1a;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .dish-preview-icon {
+      margin-right: 10px;
+      font-size: 24px;
+    }
+    
+    .dish-preview p {
+      color: #666;
+      margin-bottom: 0;
+    }
+    
+    .historical-facts {
+      margin-bottom: 30px;
+    }
+    
+    .fact-item {
+      display: flex;
+      margin-bottom: 15px;
+    }
+    
+    .fact-icon {
+      margin-right: 15px;
+      color: #9a8478;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    
+    .fact-text {
+      color: #666;
+    }
+    
+    .promo-section {
+      text-align: center;
+      padding: 60px 30px;
+      background-color: white;
+    }
+    
+    .promo-title {
+      font-size: 24px;
+      color: #3a2a1a;
+      margin-bottom: 20px;
+    }
+    
+    .promo-content {
+      max-width: 700px;
+      margin: 0 auto 30px;
+      color: #666;
+    }
+    
+    .promo-btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #9a8478;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .promo-btn:hover {
+      background-color: #8a7468;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nav-arrows {
+      display: flex;
+      justify-content: space-between;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 30px 60px;
+    }
+    
+    .nav-arrow {
+      display: flex;
+      align-items: center;
+      color: #9a8478;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    
+    .nav-arrow-prev::before {
+      content: "←";
+      margin-right: 10px;
+    }
+    
+    .nav-arrow-next::after {
+      content: "→";
+      margin-left: 10px;
+    }
+    
+    footer {
+      background-color: #3a2a1a;
+      color: white;
+      padding: 50px 0;
+      text-align: center;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .footer-links a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    
+    .footer-info {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+      }
+      
+      .timeline-title h1 {
+        font-size: 28px;
+      }
+      
+      .era-marker {
+        padding: 0 5px;
+      }
+      
+      .era-year, .era-name {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">匠のこころ 吉川屋</div>
+    <nav>
+      <ul>
+        <li><a href="#">温泉</a></li>
+        <li><a href="#">お部屋</a></li>
+        <li><a href="#" class="active">料理</a></li>
+        <li><a href="#">周辺案内</a></li>
+        <li><a href="#" class="reserve-btn">ご予約</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="breadcrumb">
+    <a href="#">ホーム</a> &gt; <a href="#">料理</a> &gt; <span>福島万年ロマン懐石</span>
+  </div>
+
+  <div class="main-container">
+    <section class="timeline-visual">
+      <div class="timeline-bg"></div>
+      <div class="timeline-title">
+        <h1>福島1万年の歴史を料理で体験する</h1>
+        <p>縄文時代から現代まで、福島の豊かな食文化の歴史を辿る料理の旅。大友料理長が紡ぐ、時空を超えた美食体験。</p>
+      </div>
+    </section>
+    
+    <section class="era-scroller">
+      <div class="era-line"></div>
+      <div class="era-markers">
+        <div class="era-marker active" data-era="jomon">
+          <div class="era-dot"></div>
+          <div class="era-year">紀元前3500年</div>
+          <div class="era-name">縄文時代</div>
+        </div>
+        <div class="era-marker" data-era="yayoi">
+          <div class="era-dot"></div>
+          <div class="era-year">紀元前300年</div>
+          <div class="era-name">弥生時代</div>
+        </div>
+        <div class="era-marker" data-era="heian">
+          <div class="era-dot"></div>
+          <div class="era-year">1120年</div>
+          <div class="era-name">平安時代</div>
+        </div>
+        <div class="era-marker" data-era="edo">
+          <div class="era-dot"></div>
+          <div class="era-year">1600年</div>
+          <div class="era-name">江戸時代</div>
+        </div>
+        <div class="era-marker" data-era="meiji">
+          <div class="era-dot"></div>
+          <div class="era-year">1868年</div>
+          <div class="era-name">明治時代</div>
+        </div>
+        <div class="era-marker" data-era="modern">
+          <div class="era-dot"></div>
+          <div class="era-year">現代</div>
+          <div class="era-name">令和時代</div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="era-scroll-container" id="era-scroll">
+      <div class="era-content-wrapper" id="era-content-wrapper">
+        <!-- 縄文時代 -->
+        <div class="era-content" id="jomon">
+          <div class="era-container">
+            <div class="era-image">
+              <img src="/api/placeholder/450/350" alt="縄文時代の再現料理">
+            </div>
+            <div class="era-details">
+              <h2>縄文時代 〜自然の恵みを活かす知恵〜</h2>
+              <p>茂庭に縄文初期の遺跡がある福島。紀元前3500年頃、この地の人々は豊かな自然の中で、狩猟や採集によって食を得ていました。山菜や木の実、鹿や猪などの獲物を、火と塩だけのシンプルな調理で味わっていました。</p>
+              
+              <div class="dish-preview">
+                <h3><span class="dish-preview-icon">🍲</span> 縄文鍋</h3>
+                <p>鹿肉や山菜、キノコなどを、土器をイメージした器で。素材の旨味をシンプルに引き出す調理法で、縄文時代の食を再現しています。</p>
+              </div>
+              
+              <div class="historical-facts">
+                <div class="fact-item">
+                  <div class="fact-icon">📜</div>
+                  <div class="fact-text">福島県内には200を超える縄文時代の遺跡があります。</div>
+                </div>
+                <div class="fact-item">
+                  <div class="fact-icon">📜</div>
+                  <div class="fact-text">縄文人は既に塩を使い、保存食という概念を持っていたとされています。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 弥生時代 -->
+        <div class="era-content" id="yayoi">
+          <div class="era-container">
+            <div class="era-image">
+              <img src="/api/placeholder/450/350" alt="弥生時代の再現料理">
+            </div>
+            <div class="era-details">
+              <h2>弥生時代 〜稲作文化の始まり〜</h2>
+              <p>紀元前300年頃、大陸から稲作が伝わり、福島の地にも農耕文化が広がりました。伝説によれば、ヤマトタケルがこの地を訪れ、養蚕技術を伝えたとも言われています。米を中心とした食生活が始まり、醸造の技術も芽生えた時代です。</p>
+              
+              <div class="dish-preview">
+                <h3><span class="dish-preview-icon">🍚</span> 古代米の釜炊き御飯</h3>
+                <p>古代米と現代の米をブレンドし、土釜でじっくりと炊き上げました。シンプルながらも、米本来の甘みと香りを感じられる一品です。</p>
+              </div>
+              
+              <div class="historical-facts">
+                <div class="fact-item">
+                  <div class="fact-icon">📜</div>
+                  <div class="fact-text">福島県は後に養蚕業が盛んになり、日本一の生産量を誇りました。</div>
+                </div>
+                <div class="fact-item">
+                  <div class="fact-icon">📜</div>
+                  <div class="fact-text">弥生時代には既に醸造酒の原型となる技術があったと考えられています。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 続きの時代 -->
+        <!-- ... 他の時代のコンテンツ ... -->
+      </div>
+    </section>
+    
+    <section class="promo-section">
+      <h2 class="promo-title">近日公開 - 福島万年ロマン懐石</h2>
+      <p class="promo-content">大友料理長の集大成となる「福島万年ロマン懐石」。縄文時代から現代まで、福島の食文化の歴史を一度に体験できる特別な懐石料理です。各時代に思いを馳せながら、福島の食の歴史を味わう旅にでませんか？</p>
+      <a href="#" class="promo-btn">ご予約はこちら</a>
+    </section>
+    
+    <div class="nav-arrows">
+      <a href="#" class="nav-arrow nav-arrow-prev">料理長の哲学</a>
+      <a href="#" class="nav-arrow nav-arrow-next">四季の懐石</a>
+    </div>
+  </div>
+  
+  <footer>
+    <div class="footer-links">
+      <a href="#">温泉</a>
+      <a href="#">お部屋</a>
+      <a href="#">料理</a>
+      <a href="#">周辺案内</a>
+      <a href="#">アクセス</a>
+      <a href="#">お問い合わせ</a>
+    </div>
+    <div class="footer-info">
+      <p>匠のこころ 吉川屋</p>
+      <p>〒960-0201 福島県福島市飯坂町湯野字新湯6</p>
+      <p>TEL: 024-542-2431</p>
+    </div>
+  </footer>
+
+  <script>
+    // 時代マーカーのクリックイベント
+    const eraMarkers = document.querySelectorAll('.era-marker');
+    const eraContentWrapper = document.getElementById('era-content-wrapper');
+    const eraContents = document.querySelectorAll('.era-content');
+    
+    eraMarkers.forEach((marker, index) => {
+      marker.addEventListener('click', function() {
+        // アクティブクラスの切り替え
+        document.querySelector('.era-marker.active').classList.remove('active');
+        this.classList.add('active');
+        
+        // コンテンツのスクロール
+        eraContentWrapper.style.transform = `translateX(-${index * 100}%)`;
+      });
+    });
+    
+    // 初期表示（縄文時代を表示）
+    window.addEventListener('load', function() {
+      eraContentWrapper.style.transform = 'translateX(0)';
+    });
+  </script>
+</body>
+</html>
